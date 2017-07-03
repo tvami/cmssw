@@ -38,7 +38,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -55,31 +55,28 @@
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     virtual ~SiPixelClusterProducer();
 
-    void setupClusterizer(const edm::ParameterSet& conf);
+    void setupClusterizer();
 
     //--- The top-level event method.
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     //--- Execute the algorithm(s).
-    template<typename T>
-    void run(const T                              & input,
-             const edm::ESHandle<TrackerGeometry> & geom,
+    void run(const edm::DetSetVector<PixelDigi>   & input,
+	     edm::ESHandle<TrackerGeometry>       & geom,
              edmNew::DetSetVector<SiPixelCluster> & output);
 
   private:
-    edm::EDGetTokenT<SiPixelClusterCollectionNew>  tPixelClusters;
+    edm::ParameterSet conf_;
     edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
     SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
-    const std::string clusterMode_;         // user's choice of the clusterizer
+    std::string clusterMode_;               // user's choice of the clusterizer
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
-    const TrackerTopology* tTopo_;          // needed to get correct layer number
+    edm::InputTag src_;
 
     //! Optional limit on the total number of clusters
-    const int32_t maxTotalClusters_;
-
-    const std::string payloadType_;
+    int32_t maxTotalClusters_;
   };
 
 
