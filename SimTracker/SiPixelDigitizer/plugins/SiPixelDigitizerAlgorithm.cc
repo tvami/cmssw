@@ -90,7 +90,6 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -184,8 +183,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // electrons to VCAL conversion needed in misscalibrate()
   electronsPerVCAL(conf.getParameter<double>("ElectronsPerVcal")),
   electronsPerVCAL_Offset(conf.getParameter<double>("ElectronsPerVcal_Offset")),
-  electronsPerVCAL_L1(conf.exists("ElectronsPerVcal_L1")?conf.getParameter<double>("ElectronsPerVcal_L1"):electronsPerVCAL),
-  electronsPerVCAL_L1_Offset(conf.exists("ElectronsPerVcal_L1_Offset")?conf.getParameter<double>("ElectronsPerVcal_L1_Offset"):electronsPerVCAL_Offset),
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   //theTofCut(conf.getUntrackedParameter<double>("TofCut",12.5)),
@@ -1266,10 +1263,6 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
   const signal_map_type& theSignal = (*it).second;
 
-  // unsigned long is enough to store SimTrack id and EncodedEventId
-  using TrackEventId = std::pair<decltype(SimTrack().trackId()), decltype(EncodedEventId().rawId())>;
-  std::map<TrackEventId, float> simi; // re-used
-
   for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
 
     float signalInElectrons = (*i).second ;   // signal in electrons
@@ -1289,7 +1282,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       if(doMissCalibrate) {
 	int row = ip.first;  // X in row
 	int col = ip.second; // Y is in col
-	adc = int(missCalibrate(detID, tTopo, pixdet, col, row, signalInElectrons)); //full misscalib.
+	adc = int(missCalibrate(detID, pixdet, col, row, signalInElectrons)); //full misscalib.
       } else { // Just do a simple electron->adc conversion
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
@@ -1312,32 +1305,31 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_ && !(*i).second.hitInfos().empty()) {
+      if (makeDigiSimLinks_ && (*i).second.hitInfo()!=0) {
         //digilink
+        if((*i).second.trackIds().size()>0){
+          simlink_map simi;
 	  unsigned int il=0;
-          for(const auto& info: (*i).second.hitInfos()) {
-            // note: according to C++ standard operator[] does
-            // value-initializiation, which for float means initial value of 0
-            simi[std::make_pair(info.trackId(), info.eventId().rawId())] += (*i).second.individualampl()[il];
-            il++;
-          }
+	  for( std::vector<unsigned int>::const_iterator itid = (*i).second.trackIds().begin();
+	       itid != (*i).second.trackIds().end(); ++itid) {
+	    simi[*itid].push_back((*i).second.individualampl()[il]);
+	    il++;
+	  }
 
 	  //sum the contribution of the same trackid
-          for(const auto& info: (*i).second.hitInfos()) {
-            // skip if track already processed
-            auto found = simi.find(std::make_pair(info.trackId(), info.eventId().rawId()));
-            if(found == simi.end())
-              continue;
+	  for( simlink_map::iterator simiiter=simi.begin();
+	       simiiter!=simi.end();
+	       simiiter++){
 
-	    float sum_samechannel = found->second;
+	    float sum_samechannel=0;
+	    for (unsigned int iii=0;iii<(*simiiter).second.size();iii++){
+	      sum_samechannel+=(*simiiter).second[iii];
+	    }
 	    float fraction=sum_samechannel/(*i).second;
-	    if(fraction>1.f) fraction=1.f;
-
-            // Approximation: pick hitIndex and tofBin only from the first SimHit
-	    simlinks.emplace_back((*i).first, info.trackId(), info.hitIndex(), info.tofBin(), info.eventId(), fraction);
-            simi.erase(found);
+	    if(fraction>1.) fraction=1.;
+	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.hitIndex(), (*i).second.tofBin(), (*i).second.eventId(), fraction);
 	  }
-          simi.clear(); // although should be empty already
+        }
       }
     }
   }
@@ -1542,7 +1534,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
+  std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
 
   int chipIndex = 0;
   int rowROC = 0;
@@ -1664,7 +1656,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   //float offset  = RandGaussQ::shoot(0.,theOffsetSmearing);
   //float newAmp = amp * gain + offset;
   // More complex misscalibration
-float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopology *tTopo, const PixelGeomDetUnit* pixdet, int col,int row,
+float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const PixelGeomDetUnit* pixdet, int col,int row,
 				 const float signalInElectrons) const {
   // Central values
   //const float p0=0.00352, p1=0.868, p2=112., p3=113.; // pix(0,0,0)
@@ -1695,15 +1687,12 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopo
     throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;
   }
 
+  //  const float electronsPerVCAL = 65.5; // our present VCAL calibration (feb 2009)
+  //  const float electronsPerVCAL_Offset = -414.0; // our present VCAL calibration (feb 2009)
   float newAmp = 0.; //Modified signal
 
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
-
-  // New gains/offsets are needed for phase1 L1
-  int layer = 0;
-  if (DetId(detID).subdetId()==1) layer = tTopo->pxbLayer(detID);
-  if (layer==1) signal = (signalInElectrons-electronsPerVCAL_L1_Offset)/electronsPerVCAL_L1;
 
   // Simulate the analog response with fixed parametrization
   newAmp = p3 + p2 * tanh(p0*signal - p1);
@@ -1712,7 +1701,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopo
   // Use the pixel-by-pixel calibrations
   //transform to ROC index coordinates
   //int chipIndex=0, colROC=0, rowROC=0;
-  //std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
+  //std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
   //pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
 
   // Use calibration from a file
@@ -1944,12 +1933,12 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       
       for(std::vector<GlobalPixel>::const_iterator it = badrocpositions.begin(); it != badrocpositions.end(); ++it){
 	if(it->row >= 80 && ip.first >= 80 ){
-	  if((std::abs(ip.second - it->col) < 26) ) {i->second.set(0.);}
+	  if((fabs(ip.second - it->col) < 26) ) {i->second.set(0.);}
           else if(it->row==120 && ip.second-it->col==26){i->second.set(0.);}
           else if(it->row==119 && it->col-ip.second==26){i->second.set(0.);}
 	}
 	else if(it->row < 80 && ip.first < 80 ){
-	  if((std::abs(ip.second - it->col) < 26) ){i->second.set(0.);}
+	  if((fabs(ip.second - it->col) < 26) ){i->second.set(0.);}
           else if(it->row==40 && ip.second-it->col==26){i->second.set(0.);}
           else if(it->row==39 && it->col-ip.second==26){i->second.set(0.);}
        }
@@ -1957,4 +1946,3 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
     }
   }
 }
-
