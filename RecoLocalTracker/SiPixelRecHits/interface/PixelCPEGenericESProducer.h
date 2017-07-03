@@ -5,15 +5,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 class  PixelCPEGenericESProducer: public edm::ESProducer{
  public:
   PixelCPEGenericESProducer(const edm::ParameterSet & p);
   virtual ~PixelCPEGenericESProducer(); 
-  std::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
+  boost::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
  private:
-  std::shared_ptr<PixelClusterParameterEstimator> cpe_;
+  boost::shared_ptr<PixelClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
   edm::ESInputTag magname_;
   bool useLAWidthFromDB_;
@@ -23,7 +23,6 @@ class  PixelCPEGenericESProducer: public edm::ESProducer{
 
 
 #endif
-
 
 
 
