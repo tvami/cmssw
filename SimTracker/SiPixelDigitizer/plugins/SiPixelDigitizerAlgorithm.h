@@ -93,7 +93,7 @@ class SiPixelDigitizerAlgorithm  {
   public:
     Amplitude() : _amp(0.0) {}
     Amplitude( float amp, float frac) :
-      _amp(amp), _frac(1, frac) {
+      _amp(amp), _frac(1, frac), _hitInfo() {
     //in case of digi from noisypixels
       //the MC information are removed 
       if (_frac[0]<-0.5) {
@@ -102,35 +102,51 @@ class SiPixelDigitizerAlgorithm  {
     }
 
     Amplitude( float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac) :
-      _amp(amp), _frac(1, frac) {
+      _amp(amp), _frac(1, frac), _hitInfo(new SimHitInfoForLinks(hitp, hitIndex, tofBin) ) {
 
     //in case of digi from noisypixels
       //the MC information are removed 
       if (_frac[0]<-0.5) {
 	_frac.pop_back();
-      }
-      else {
-        _hitInfos.emplace_back(hitp, hitIndex, tofBin);
+	_hitInfo->trackIds_.pop_back();
       }
     }
 
     // can be used as a float by convers.
     operator float() const { return _amp;}
     float ampl() const {return _amp;}
-    const std::vector<float>& individualampl() const {return _frac;}
-    const std::vector<SimHitInfoForLinks>& hitInfos() const { return _hitInfos; }
+    std::vector<float> individualampl() const {return _frac;}
+    const std::vector<unsigned int>& trackIds() const {
+      return _hitInfo->trackIds_;
+    }
+    const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
       //in case of contribution of noise to the digi
       //the MC information are removed 
       if (other._frac[0]>-0.5){
-        if(!other._hitInfos.empty()) {
-          _hitInfos.insert(_hitInfos.end(), other._hitInfos.begin(), other._hitInfos.end());
+        if(other._hitInfo) {
+          std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds_;
+          if(_hitInfo) {
+            std::vector<unsigned int>& trackIds = _hitInfo->trackIds_;
+	    trackIds.insert(trackIds.end(), otherTrackIds.begin(), otherTrackIds.end());
+          } else {
+            _hitInfo.reset(new SimHitInfoForLinks(*other._hitInfo));
+          }
         }
 	_frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
       }
-    }
+   }
+   const EncodedEventId& eventId() const {
+     return _hitInfo->eventId_;
+   }
+   const unsigned int hitIndex() const {
+     return _hitInfo->hitIndex_;
+   }
+   const unsigned int tofBin() const {
+     return _hitInfo->tofBin_;
+   }
     void operator+=( const float& amp) {
       _amp += amp;
     }
@@ -144,7 +160,7 @@ class SiPixelDigitizerAlgorithm  {
   private:
     float _amp;
     std::vector<float> _frac;
-    std::vector<SimHitInfoForLinks> _hitInfos;
+    std::shared_ptr<SimHitInfoForLinks> _hitInfo;
   };  // end class Amplitude
 
   // Define a class to hold the calibration parameters per pixel
@@ -272,6 +288,7 @@ class SiPixelDigitizerAlgorithm  {
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
     typedef signal_map_type::iterator          signal_map_iterator; // from Digi.Skel.  
     typedef signal_map_type::const_iterator    signal_map_const_iterator; // from Digi.Skel.  
+    typedef std::map<unsigned int, std::vector<float>,std::less<unsigned int> > simlink_map;
     typedef std::map<uint32_t, signal_map_type> signalMaps;
     typedef GloballyPositioned<double>      Frame;
     typedef std::vector<edm::ParameterSet> Parameters;
@@ -322,10 +339,8 @@ class SiPixelDigitizerAlgorithm  {
     const double theThresholdSmearing_BPix;
     const double theThresholdSmearing_BPix_L1;
 
-    const float electronsPerVCAL;          // for electrons - VCAL conversion
-    const float electronsPerVCAL_Offset;   // in misscalibrate()
-    const float electronsPerVCAL_L1;       // same for Layer 1
-    const float electronsPerVCAL_L1_Offset;// same for Layer 1
+    const double electronsPerVCAL;          // for electrons - VCAL conversion
+    const double electronsPerVCAL_Offset;   // in misscalibrate()
 
     const float theTofLowerCut;             // Cut on the particle TOF
     const float theTofUpperCut;             // Cut on the particle TOF
@@ -417,7 +432,7 @@ class SiPixelDigitizerAlgorithm  {
     
     // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;    
-    float missCalibrate(uint32_t detID, const TrackerTopology *tTopo, const PixelGeomDetUnit* pixdet, int col, int row, float amp) const;  
+    float missCalibrate(uint32_t detID, const PixelGeomDetUnit* pixdet, int col, int row, float amp) const;  
     LocalVector DriftDirection(const PixelGeomDetUnit* pixdet,
                                const GlobalVector& bfield,
                                const DetId& detId) const;
