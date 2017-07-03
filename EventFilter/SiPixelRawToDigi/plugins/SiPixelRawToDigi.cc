@@ -186,11 +186,11 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
-  auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
+  std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   // collection->reserve(8*1024);
-  auto errorcollection = std::make_unique<edm::DetSetVector<SiPixelRawDataError>>();
-  auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
-  auto usererror_detidcollection = std::make_unique<DetIdCollection>();
+  std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
+  std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
+  std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
   //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
   PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
@@ -206,14 +206,14 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   if (regions_) {
     regions_->run(ev, es);
     formatter.setModulesToUnpack(regions_->modulesToUnpack());
-    LogDebug("SiPixelRawToDigi") << "region2unpack #feds: "<<regions_->nFEDs();
+    LogDebug("SiPixelRawToDigi") << "region2unpack #feds (BPIX,EPIX,total): "<<regions_->nBarrelFEDs()<<" "<<regions_->nForwardFEDs()<<" "<<regions_->nFEDs();
     LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
   }
 
   for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
 
-    if(!usePilotBlade && (fedId==40) ) continue; // skip pilot blade data
+    if(!usePilotBlade && (fedId==40 || fedId==1240) ) continue; // skip pilot blade data
 
     if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
 
@@ -284,10 +284,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   //send digis and errors back to framework 
-  ev.put(std::move(collection));
+  ev.put( collection );
   if(includeErrors){
-    ev.put(std::move(errorcollection));
-    ev.put(std::move(tkerror_detidcollection));
-    ev.put(std::move(usererror_detidcollection), "UserErrorModules");
+    ev.put( errorcollection );
+    ev.put( tkerror_detidcollection );
+    ev.put( usererror_detidcollection, "UserErrorModules" );
   }
 }
