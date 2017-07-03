@@ -97,8 +97,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     fedIds = cablingMap->fedIds();
     cablingTree_= cablingMap->cablingTree();
-    if (frameReverter_) delete frameReverter_; 
-    frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
+    if (frameReverter_) delete frameReverter_; frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
   }
 
   debug = edm::MessageDrop::instance()->debugEnabled;
@@ -111,7 +110,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   if (theTimer) theTimer->start();
 
   // create product (raw data)
-  auto buffers = std::make_unique<FEDRawDataCollection>();
+  std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
   const vector<const PixelFEDCabling *>  fedList = cablingTree_->fedList();
 
@@ -143,9 +142,8 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     hDigi->Fill(formatter.nDigis());
   }
   
-  ev.put(std::move(buffers));
+  ev.put( buffers );
   
 }
 
 // -----------------------------------------------------------------------------
-
