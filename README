@@ -22,4 +22,6 @@ SiPixelRawToDigi.h
 
 /SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py
 
+/CondFormats/SiPixelObjects/src/PixelROC.cc
+
 All of the condition files are uploaded
