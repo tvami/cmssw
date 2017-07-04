@@ -180,37 +180,38 @@ void PilotBladeStudy::endJob() {
 
 // ------------------------------ beginRun ------------------------------------
 void PilotBladeStudy::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-  run_.init();
-  run_.run = iRun.run();
+  //run_.init();
+  //run_.run = iRun.run();
   
   // ConditionsInRunBlock for fill number
-  edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
-  iRun.getByToken(condInRunBlockToken_, condInRunBlock);
+  //edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
+  //iRun.getByToken(condInRunBlockToken_, condInRunBlock);
   
-  if (condInRunBlock.isValid()) {
-     run_.fill = condInRunBlock->lhcFillNumber;
-  } else if (run_.run==1) {
-   run_.fill = 0;
-  } else {
-    std::cout<<"No condInRunBlock info is available\n";
-    return;
-  }
-  std::cout<<"Begin Run: "<<evt_.run<<" in Fill: "<<evt_.fill<<std::endl;
+//   if (condInRunBlock.isValid()) {
+//      run_.fill = condInRunBlock->lhcFillNumber;
+//   } else if (run_.run==1) {
+//    run_.fill = 0;
+//   } else {
+//     std::cout<<"No condInRunBlock info is available\n";
+//     return;
+//   }
+//   std::cout<<"Begin Run: "<<evt_.run<<" in Fill: "<<evt_.fill<<std::endl;
 }
 
 // ------------------------------ endRun -------------------------------------
 void PilotBladeStudy::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
   // ConditionsInRunBlock
-  edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
-  iRun.getByToken(condInRunBlockToken_, condInRunBlock);
-  if (!condInRunBlock.isValid()) {
-    std::cout<<"CondInRunBlock info is NOT available" << std::endl;
-  } else {
-    run_.fill = condInRunBlock->lhcFillNumber;
-    run_.run = iRun.run();
-    std::cout<<"End Run: "<<run_.run<<" in Fill: "<<run_.fill<<std::endl;
-  }
-  runTree_->Fill();
+  //edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
+  //iRun.getByToken(condInRunBlockToken_, condInRunBlock);
+  //if (!condInRunBlock.isValid()) {
+  //  std::cout<<"CondInRunBlock info is NOT available" << std::endl;
+  //} else {
+  // run_.fill = condInRunBlock->lhcFillNumber;
+  // run_.run = iRun.run();
+  //run_.run  = iEvent.id().run()
+  //  std::cout<<"End Run: "<<run_.run<<" in Fill: "<<run_.fill<<std::endl;
+  //}
+  //runTree_->Fill();
 }
 
 // -------------------------------- analyze -----------------------------------
