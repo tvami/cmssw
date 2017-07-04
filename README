@@ -1,1 +1,25 @@
-Introduction to CMSSW: http://cms-sw.github.io
+https://github.com/tvami/cmssw/tree/CMSSW_9_3_X_wPilotBladeStudy
+
+Changes
+/SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizer.cc
+SiPixelDigitizerAlgorithm.cc
+SiPixelDigitizerAlgorithm.h
+
+/EventFilter/SiPixelRawToDigi/plugins/
+SiPixelDigiToRaw.cc
+SiPixelDigiToRaw.h
+SiPixelRawToDigi.cc
+SiPixelRawToDigi.h
+
+/EventFilter/SiPixelRawToDigi/src/ErrorChecker.cc
+
+/CondFormats/SiPixelObjects/src/FrameConversion.cc
+/CondFormats/SiPixelObjects/interface/FrameConversion.h
+
+/RecoLocalTracker/SiPixelClusterizer/plugins/
+
+/RecoLocalTracker/SiPixelRecHits/plugins/
+
+/SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py
+
+All of the condition files are uploaded
