@@ -6,7 +6,7 @@ autoCond = {
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
     'run1_mc'                      : '121X_mcRun1_realistic_v3',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'                   : '121X_mcRun1_HeavyIon_v3',
+    'run1_mc_hi'                   : '121X_mcRun1_HeavyIon_v4',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'                 : '121X_mcRun2_startup_v3',
     # GlobalTag for MC production (2015 L1 Trigger Stage1) with startup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
