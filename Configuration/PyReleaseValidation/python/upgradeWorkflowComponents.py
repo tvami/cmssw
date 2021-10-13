@@ -150,7 +150,9 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
-        if era is not None: stepDict[stepName][k]['--era']=era
+        if era is not None: 
+            stepDict[stepName][k]['--era']=era
+            if 'RecNan' in stepName: stepDict[stepName][k]['--era'] += ',run3_nanoAOD_devel'
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
@@ -168,12 +170,14 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'RecoGlobal',
         'HARVEST',
         'HARVESTFakeHLT',
+        'HARVESTRecNan',
         'FastSim',
         'HARVESTFast',
         'HARVESTGlobal',
         'ALCA',
         'Nano',
         'MiniAOD',
+        'RecNan',
     ],
     PU =  [
         'DigiTrigger',
@@ -184,9 +188,11 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'RecoFakeHLT',
         'HARVEST',
         'HARVESTFakeHLT',
+        'HARVESTRecNan',
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'RecNan',
     ],
     suffix = '',
     offset = 0.0,
@@ -456,11 +462,20 @@ class PatatrackWorkflow(UpgradeWorkflow):
 
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Digi' in step:
-            stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
+            if self.__digi is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__digi, stepDict[step][k]])
         elif 'Reco' in step:
-            stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
+            if self.__reco is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__reco, stepDict[step][k]])
         elif 'HARVEST' in step:
-            stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
+            if self.__harvest is None:
+              stepDict[stepName][k] = None
+            else:
+              stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 
 
 upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
@@ -491,6 +506,22 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_PixelOnlyGPU',
     offset = 0.502,
+)
+
+# add here a .503 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyGPU_Profiling',
+    offset = 0.504,
 )
 
 upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
@@ -526,6 +557,23 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
     offset = 0.506,
 )
 
+# add here a .507 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu',
+        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
+        '--procModifiers': 'pixelNtupletFit,gpu',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',
+    offset = 0.508,
+)
+
 upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
@@ -552,6 +600,22 @@ upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.512,
 )
 
+# add here a .513 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackECALOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly',
+        '--procModifiers': 'gpu',
+        '--customise' : 'RecoLocalCalo/Configuration/customizeEcalOnlyForProfiling.customizeEcalOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_ECALOnlyGPU_Profiling',
+    offset = 0.514,
+)
+
 upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
@@ -576,6 +640,22 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     },
     suffix = 'Patatrack_HCALOnlyGPU',
     offset = 0.522,
+)
+
+# add here a .523 workflow for GPU vs CPU validation
+
+upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly',
+        '--procModifiers': 'gpu',
+        '--customise' : 'RecoLocalCalo/Configuration/customizeHcalOnlyForProfiling.customizeHcalOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_HCALOnlyGPU_Profiling',
+    offset = 0.524,
 )
 
 upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
@@ -660,7 +740,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
             # remove step
             stepDict[stepName][k] = None
         if 'Nano' in step:
-            stepDict[stepName][k] = merge([{'--filein':'file:step4.root'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--filein':'file:step4.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and ('2026' in key or '2021' in key)
 upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
@@ -1029,6 +1109,8 @@ class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLi
                         "--eventcontent": "PREMIXRAW"},
                        d])
             stepDict[stepName][k] = d
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step5.root','-s':'NANO','--datatier':'NANOAODSIM','--eventcontent':'NANOEDMAODSIM'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         # use both conditions
         return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
