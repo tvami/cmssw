@@ -88,7 +88,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
     float probXYonTrackWMulti = 1;
     float probQonTrackWMultiNoLayer1 = 1;
     float probXYonTrackWMultiNoLayer1 = 1;
-
+    cout << "-----------------------------------" << endl;  // debug
+    cout << "-----------------------------------" << endl;  // debug
     // Loop through the rechits on the given track
     auto hb = track.recHitsBegin();
     for (unsigned int h = 0; h < track.recHitsSize(); h++) {
@@ -131,6 +132,8 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
         continue;  // if any of the rechits have zero probQ, skip them
       }
       numRecHits++;
+      cout << "     >> probQ " << probQ << endl;            // debug
+      cout << "     >> probQNoLayer1 " << probQNoLayer1 << endl;  // debug
 
       // Calculate alpha term needed for the combination
       probQonTrackWMulti *= probQ;
@@ -163,6 +166,10 @@ void SiPixelTrackProbQXYProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     probQonTrackNoLayer1 = probQonTrackWMultiNoLayer1 * probQonTrackTermNoLayer1;
     probXYonTrackNoLayer1 = probXYonTrackWMultiNoLayer1 * probXYonTrackTermNoLayer1;
+    cout << "  >> probQonTrackWMulti " << probQonTrackWMulti << " probQonTrackTerm " << probQonTrackTerm << endl;
+    cout << "  >> probQonTrack " << probQonTrack << endl;  // debug
+    cout << "  >> probQonTrackNoLayer1 " << probQonTrackNoLayer1 << endl;  // debug
+
 
     reco::SiPixelTrackProbQXY siPixelTrackProbQXY =
         SiPixelTrackProbQXY(probQonTrack, probXYonTrack, probQonTrackNoLayer1, probXYonTrackNoLayer1);
