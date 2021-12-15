@@ -101,8 +101,11 @@ private:
   const edm::EDGetTokenT<edm::Association<std::vector<reco::DeDxHitInfo>>> dedxToken_;
   TTree* smalltree;
   int numTrack; 
+  int numTrackIso;
+  float tree_track_probQonIsoTrack[nMaxTrack];
   float tree_track_probQ[nMaxTrack];
   float tree_track_probQNew[nMaxTrack];
+
 };
 
 using namespace reco;
@@ -128,6 +131,8 @@ ProbQXYAna::ProbQXYAna(const edm::ParameterSet& iConfig)
   edm::Service<TFileService> fs;
   smalltree = fs->make<TTree>("ttree", "ttree");
   smalltree->Branch("numTrack", &numTrack);
+  smalltree->Branch("numTrackIso", &numTrackIso);
+  smalltree->Branch("track_probQonIsoTrack", tree_track_probQonIsoTrack, "track_probQonIsoTrack[numTrack]/F");
   smalltree->Branch("track_probQ", tree_track_probQ, "track_probQ[numTrack]/F");
   smalltree->Branch("track_probQNew", tree_track_probQNew, "track_probQNew[numTrack]/F");
 
@@ -141,6 +146,9 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   bool xdouble[TXSIZE],ydouble[TYSIZE];
   int qbin,ierr;
   speed=-2;
+
+  int noPcCandFound = 0;
+  int pcHasNoTrackDetails = 0;
 
   edm::ESHandle<MagneticField> magfield_;
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
@@ -175,13 +183,13 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::vector< SiPixelTemplateStore > thePixelTemp_;
   SiPixelTemplate templ(thePixelTemp_);
 
-
   if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_)) {
       cout << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
 	   << (*templateDBobject_).version() << "\n\n";
   }
+
   numTrack = 0;
- 
+  numTrackIso = 0;
   // Loop through the isoTrack collection 
   for (unsigned int c = 0; c < IsotrackCollectionHandle->size(); c++) {
    edm::Ref<std::vector<pat::IsolatedTrack>> track = edm::Ref<std::vector<pat::IsolatedTrack>>(IsotrackCollectionHandle, c);
@@ -204,8 +212,18 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    LogPrint("ProbQXYAna") << "  >> probQonTrackNoLayer1: " << probQonTrackNoLayer1
                            << " and probXYonTrackNoLayer1: " << probXYonTrackNoLayer1;
 
+    tree_track_probQonIsoTrack[numTrackIso] = probQonTrack;
+    numTrackIso++;
+    // Find the reference either to the pf candidate or to the lost track
     pat::PackedCandidateRef pc = track->packedCandRef(); 
-    if (!pc->hasTrackDetails()) continue; 
+    if (pc.isNull()) {
+       noPcCandFound++;
+       continue;
+    }
+    if (!pc->hasTrackDetails()) {
+       pcHasNoTrackDetails++;
+       continue; 
+    }
     const reco::Track pseudoTrack = (pc->pseudoTrack());
     if (abs(pseudoTrack.pt()-track->pt()) > 1) {
        continue;
@@ -242,7 +260,7 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      float track_vx = -sinphi*track_dxy - (cosphi/sinlmb)*track_dsz + (cosphi/tanlmb)*track_vz;
      float track_vy =  cosphi*track_dxy - (sinphi/sinlmb)*track_dsz + (sinphi/tanlmb)*track_vz;
 
-     LogPrint("ProbQXYAna") << "    >> get the startingStateP";
+     //LogPrint("ProbQXYAna") << "    >> get the startingStateP";
      GlobalPoint startingPosition(track_vx, track_vy, track_vz);
      GlobalVector startingMomentum(track_px, track_py, track_pz);
      reco::TrackBase::CovarianceMatrix track_cov;
@@ -291,7 +309,7 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
       const GeomDet* geomDet = theTracker.idToDet(detIDforThisHit);
       TrajectoryStateOnSurface extraptsos = thePropagator->propagate(startingStateP, geomDet->specificSurface());
-      LogPrint("ProbQXYAna") << "      >> LocalTrajectoryParameters calculation";
+     // LogPrint("ProbQXYAna") << "      >> LocalTrajectoryParameters calculation";
       LocalTrajectoryParameters ltp = extraptsos.localParameters();
       //auto geomdetunit = geomDet->detUnit();
       //const GeomDetUnit* geomdetunit = dynamic_cast<const GeomDetUnit*>(geomDet);
@@ -360,7 +378,7 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	SiPixelTemplateReco::ClusMatrix clusterPayload{&clusbuf[0][0], xdouble, ydouble, mrow,mcol};
 
         // Running the actualy 1D Template Reco
-        LogPrint("ProbQXYAna") << "        >> Running the actual 1D Template Reco" ;
+        //LogPrint("ProbQXYAna") << "        >> Running the actual 1D Template Reco" ;
         LogPrint("ProbQXYAna") << "        >> TemplID1: " << TemplID1 << " cot(alpha): "
         << cotAlpha << " cot(beta): " << cotBeta;
         ierr = PixelTempReco1D(TemplID1,
@@ -401,6 +419,8 @@ void ProbQXYAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     //  probXYonTrackNoLayer1New = combineProbs(probXYonTrackWMultiNoLayer1,numRecHitsNoLayer1);
   } // end loop on isolated track collection
   smalltree->Fill();
+  LogPrint("ProbQXYAna") << " >> Ratio of not found tracks in the event: " << noPcCandFound/float(numTrackIso); 
+  LogPrint("ProbQXYAna") << " >> Ratio of no track detail tracks in the event: " << pcHasNoTrackDetails/float(numTrackIso); 
 }
 
 float ProbQXYAna::combineProbs(float probOnTrackWMulti, int numRecHits) {
