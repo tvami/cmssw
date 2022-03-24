@@ -24,6 +24,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
         exponent = cms.double(-2.0),
     ),
     lowPtTracksDeDxThreshold = cms.double(3.5), # threshold on tracks
+    usePixelForPrescales = cms.bool(True)
 )
 
 import RecoTracker.DeDx.DeDxEstimatorProducer_cfi as _mod
@@ -78,3 +79,15 @@ doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHa
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
 
 fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))
+
+# use only the strips for Run-3
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(dedxHitInfo,
+    lowPtTracksEstimatorParameters = cms.PSet(
+        fraction = cms.double(0), # do not truncate
+        exponent = cms.double(-2.0),
+    ),
+    usePixelForPrescales = cms.bool(False)
+)
+
+
