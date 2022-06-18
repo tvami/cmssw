@@ -56,3 +56,27 @@ DigiToRawRepack = cms.Sequence( DigiToRawRepackTask )
 DigiToHybridRawRepack = cms.Sequence( DigiToHybridRawRepackTask )
 DigiToVirginRawRepack = cms.Sequence( DigiToVirginRawRepackTask )
 DigiToSplitRawRepack = cms.Sequence( DigiToRawRepackTask, DigiToVirginRawRepackTask )
+
+from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import siStripDigis
+siStripDigisHLT = siStripDigis.clone(ProductLabel = "rawDataRepacker")
+
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import siStripZeroSuppression
+siStripZeroSuppressionHLT = siStripZeroSuppression.clone(
+    RawDigiProducersList =cms.VInputTag(cms.InputTag("siStripDigisHLT","VirginRaw"), cms.InputTag("siStripDigisHLT","ProcessedRaw"), cms.InputTag("siStripDigisHLT","ScopeMode")
+    ))
+    
+from RecoLocalTracker.SiStripClusterizer.DefaultClusterizer_cff import *
+siStripClustersHLT = cms.EDProducer("SiStripClusterizer",
+                                    Clusterizer = DefaultClusterizer,
+                                    DigiProducersList = cms.VInputTag(
+                                        cms.InputTag('siStripDigisHLT','ZeroSuppressed'),
+                                        cms.InputTag('siStripZeroSuppressionHLT','VirginRaw'),
+                                        cms.InputTag('siStripZeroSuppressionHLT','ProcessedRaw'),
+                                        cms.InputTag('siStripZeroSuppressionHLT','ScopeMode')),
+                                )
+
+from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cfi import *
+SiStripClusters2ApproxClusters.inputClusters = "siStripClustersHLT"
+
+DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,siStripClustersHLT,SiStripClusters2ApproxClusters)
+DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)
