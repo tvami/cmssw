@@ -264,7 +264,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       double y2 = y1;
       double z2 = z1;
       double decay_length = 0.0;
-      if (2 == status) {
+      if (status > 1) {
         x2 = (*pitr)->end_vertex()->position().x();
         y2 = (*pitr)->end_vertex()->position().y();
         z2 = (*pitr)->end_vertex()->position().z();
@@ -365,7 +365,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
           // Decay chain outside the fiducial cylinder defined by theRDecLenCut
           // are used for Geant4 tracking with predefined decay channel
           // In the case of decay in vacuum particle is not tracked by Geant4
-        } else if (2 == status && x2 * x2 + y2 * y2 >= theDecRCut2 && std::abs(z2) < Z_hector) {
+        } else {
           toBeAdded = true;
           if (verbose > 1)
             edm::LogVerbatim("SimG4CoreGenerator") << "GenParticle barcode = " << (*pitr)->barcode() << " passed case 2"
@@ -392,7 +392,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         // g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
         setGenId(g4prim, (*pitr)->barcode());
 
-        if (2 == status) {
+        if (status > 1) {
           particleAssignDaughters(g4prim, (HepMC::GenParticle *)*pitr, decay_length);
         }
         if (verbose > 1)
