@@ -76,7 +76,7 @@ allTags["TkAlignment"] = {
     'T25' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T25_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T30_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T33' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T33_design_v0' ,TkAlRecord, connectionString, "", "2023-06-07 21:00:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v0' ,TkAlRecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
+  #  'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v0' ,TkAlRecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
 }
 
 allTags["TkAPE"] = {
@@ -84,7 +84,7 @@ allTags["TkAPE"] = {
     'T25' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T25_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T30_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T33' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T33_design_v0' ,TkAPERecord, connectionString, "", "2023-06-07 21:00:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v0' ,TkAPERecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
+ #   'T36' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T36_design_v0' ,TkAPERecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
 }
 
 allTags["TkSurf"] = {
@@ -92,7 +92,7 @@ allTags["TkSurf"] = {
     'T25' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T33' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
+  #  'T36' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2024-??-?? ??:00:00"] ), ),
 }
 
 ##
