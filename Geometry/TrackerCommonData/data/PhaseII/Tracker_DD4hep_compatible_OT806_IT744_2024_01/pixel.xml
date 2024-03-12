@@ -241,7 +241,7 @@ note: see OT806_IT744_2024_03_12.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR278Z2736" density="0.683251*g/cm3" method="mixture by weight">
+<!--<CompositeMaterial name="servicecompositeR278Z2736" density="0.683251*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.00562168">
 <rMaterial name="tracker:tkLayout_Acrylate"/>
 </MaterialFraction>
@@ -266,7 +266,7 @@ note: see OT806_IT744_2024_03_12.cfg for full config files
 <MaterialFraction fraction="0.141705">
 <rMaterial name="tracker:tkLayout_StainlessSteel"/>
 </MaterialFraction>
-</CompositeMaterial>
+</CompositeMaterial>-->
 <CompositeMaterial name="servicecompositeR180Z1536" density="1.90596*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.00821183">
 <rMaterial name="tracker:tkLayout_Acrylate"/>
@@ -5944,10 +5944,10 @@ note: see OT806_IT744_2024_03_12.cfg for full config files
 <rSolid name="pixel:ITDisc12"/>
 <rMaterial name="materials:Air"/>
 </LogicalPart>
-<LogicalPart name="serviceR278Z2736" category="unspecified">
+<!--<LogicalPart name="serviceR278Z2736" category="unspecified">
 <rSolid name="pixel:serviceR278Z2736"/>
 <rMaterial name="pixel:servicecompositeR278Z2736"/>
-</LogicalPart>
+</LogicalPart>-->
 <LogicalPart name="serviceR180Z1536" category="unspecified">
 <rSolid name="pixel:serviceR180Z1536"/>
 <rMaterial name="pixel:servicecompositeR180Z1536"/>
@@ -7550,7 +7550,7 @@ note: see OT806_IT744_2024_03_12.cfg for full config files
 <Tubs name="ITDisc12Ring5Full" rMin="209.99*mm" rMax="255.091*mm" dz="4.585*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="ITDisc12Ring5InnerCut" rMin="209.98*mm" rMax="219.154*mm" dz="3.415*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="ITDisc12" rMin="62.38*mm" rMax="255.101*mm" dz="6.595*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR278Z2736" rMin="278.513*mm" rMax="278.413*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="serviceR278Z2736" rMin="278.513*mm" rMax="278.413*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
 <Tubs name="serviceR180Z1536" rMin="180.005*mm" rMax="182.005*mm" dz="67.1625*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR255Z1605" rMin="255.157*mm" rMax="278.413*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR233Z1605" rMin="233.844*mm" rMax="255.157*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -11687,11 +11687,11 @@ note: see OT806_IT744_2024_03_12.cfg for full config files
 <rChild name="pixel:ITDisc12"/>
 <Translation x="0*mm" y="0*mm" z="2359*mm"/>
 </PosPart>
-<PosPart copyNumber="1">
+<!--<PosPart copyNumber="1">
 <rParent name="pixfwd:Phase2PixelEndcap"/>
 <rChild name="pixel:serviceR278Z2736"/>
 <Translation x="0*mm" y="0*mm" z="2445.01*mm"/>
-</PosPart>
+</PosPart>-->
 <PosPart copyNumber="1">
 <rParent name="pixfwd:Phase2PixelEndcap"/>
 <rChild name="pixel:serviceR180Z1536"/>
