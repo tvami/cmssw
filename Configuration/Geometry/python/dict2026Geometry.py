@@ -350,7 +350,7 @@ trackerDict = {
     },
     "T36" : {
         1 : [
-            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/trackerParameters.xml',
             'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
             'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/pixfwd.xml',
             'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT800_IT615_2022_10/pixbar.xml',
@@ -364,7 +364,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/pixelStructureTopology.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackersens.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/pixelsens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/Tracker_DD4hep_compatible_IT711_2023_05/trackerRecoMaterial.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/trackerRecoMaterial.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackerProdCuts.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/pixelProdCuts.xml',
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
