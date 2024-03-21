@@ -3056,7 +3056,7 @@ upgradeProperties[2026] = {
     '2026D110' : {
         'Geom' : 'Extended2026D110',
         'HLTmenu': '@relval2026',
-        'GT' : 'auto:phase2_realistic_T33',
+        'GT' : 'auto:phase2_realistic_T36',
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
