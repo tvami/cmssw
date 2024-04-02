@@ -77,7 +77,7 @@ allTags["TkAlignment"] = {
     'T25' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T25_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T30' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T30_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
     'T33' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T33_design_v0' ,TkAlRecord, connectionString, "", "2023-06-07 21:00:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v2' ,TkAlRecord, connectionStringDev, "", "2024-03-21 13:10:00"] ), ),
+    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v3' ,TkAlRecord, connectionStringDev, "", "2024-03-28 15:19:00"] ), ),
 }
 
 allTags["TkAPE"] = {
