@@ -23,7 +23,7 @@
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT806_IT741_2024_01/trackerParameters.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/pixfwd.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseII/Tracker_DD4hep_compatible_OT800_IT615_2022_10/pixbar.xml'/>
